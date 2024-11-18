@@ -156,53 +156,83 @@ document.addEventListener("DOMContentLoaded", function() {
     // Get initial weather data for Karachi
     getWeather("Karachi");
 
-    // Speech Recognition for interacting with Garry
+    // Setup SpeechRecognition (Speech to Text)
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    recognition.continuous = true; // keep listening until stopped
+    recognition.interimResults = false; // get final result only
 
+    // Setup Speech Synthesis (Text to Speech)
+    const synth = window.speechSynthesis;
+
+    // Function to start listening to user voice input
+    function startListening() {
+        recognition.start();
+        document.getElementById("response").innerHTML = "Listening... Speak now!";
+    }
+
+    // Handle the recognition result
     recognition.onresult = function(event) {
-        const spokenText = event.results[0][0].transcript.toLowerCase();
-        console.log("Spoken text:", spokenText); // Log spoken text for debugging
-        if (spokenText.includes("hi garry") || spokenText.includes("hello garry")) {
-            speakBotResponse("Hello, I am Garry! How can I help you today?");
+        const spokenText = event.results[event.resultIndex][0].transcript.toLowerCase();
+        console.log("Spoken text:", spokenText); // Log for debugging
+
+        if (spokenText.includes("hello garry") || spokenText.includes("hi garry")) {
+            speakResponse("Hello! How can I assist you today?");
+        }
+        else if (spokenText.includes("what's the weather in") || spokenText.includes("weather in")) {
+            const city = extractCity(spokenText);
+            if (city) {
+                getWeather(city);
+            } else {
+                speakResponse("Please mention a city after 'weather in'. For example, 'What's the weather in Lahore?'");
+            }
+        }
+        else if (spokenText.includes("what time is it") || spokenText.includes("tell me the time")) {
+            const currentTime = new Date().toLocaleTimeString();
+            speakResponse("The current time is " + currentTime);
+        }
+        else if (spokenText.includes("what's your name") || spokenText.includes("who are you")) {
+            speakResponse("I am Garry, your voice assistant. How can I help you?");
+        }
+        else if (spokenText.includes("tell me a joke") || spokenText.includes("make me laugh")) {
+            tellJoke();
+        }
+        else if (spokenText.includes("goodbye") || spokenText.includes("bye")) {
+            speakResponse("Goodbye! Have a great day!");
+            recognition.stop();
+        }
+        else {
+            speakResponse("Sorry, I didn't quite catch that. Can you repeat?");
         }
     };
 
-    // Start listening for speech
-    function startListening() {
-        recognition.start();
-        document.getElementById("statusMessage").innerText = "Garry is now listening...";  // Update the status message
+    // Extract the city name from the spoken text
+    function extractCity(text) {
+        const cityPattern = /weather in ([a-zA-Z ]+)/;
+        const match = text.match(cityPattern);
+        return match ? match[1] : null;
     }
 
-    // Speak a response from the bot
-    function speakBotResponse(responseText) {
-        if ('speechSynthesis' in window) {
-            const speech = new SpeechSynthesisUtterance(responseText);
-            speech.lang = 'en-US';
-            speech.rate = 1;
-            speech.pitch = 1;
-            speech.volume = 1;
-            window.speechSynthesis.speak(speech);
-        }
+    // Function to respond to the user's speech
+    function speakResponse(responseText) {
+        const utterance = new SpeechSynthesisUtterance(responseText);
+        utterance.lang = 'en-US';
+        synth.speak(utterance);
+        document.getElementById("response").innerHTML = responseText;
     }
 
-    // Activate listening when the user clicks on the bot image
-    document.getElementById("botImage").addEventListener("click", function() {
-        startListening();
-    });
-
-    // Activate listening when the user clicks a button (or can be voice-activated)
+    // Start listening to user speech when button is clicked
     document.getElementById("startListeningBtn").addEventListener("click", startListening);
-});
 
-// Updated chatbot button functionality
-const chatbotBtn = document.getElementById('chatbotBtn');
-const botImage = document.getElementById('botImage');
-const chatWindow = document.getElementById('chatWindow');
+    // Function to tell a joke
+    function tellJoke() {
+        const jokes = [
+            "Why don't skeletons fight each other? They don't have the guts.",
+            "I told my computer I needed a break, and now it won’t stop sending me KitKats.",
+            "Why don’t programmers like nature? It has too many bugs.",
+            "What do you call fake spaghetti? An impasta."
+        ];
 
-chatbotBtn.addEventListener('click', () => {
-    chatWindow.style.display = (chatWindow.style.display === 'none' || chatWindow.style.display === '') ? 'block' : 'none';
-    botImage.style.display = (chatWindow.style.display === 'block') ? 'none' : 'block';
+        const joke = jokes[Math.floor(Math.random() * jokes.length)];
+        speakResponse(joke);
+    }
 });
