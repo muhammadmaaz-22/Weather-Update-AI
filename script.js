@@ -20,8 +20,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Function to get weather data
     function getWeather(city) {
+        console.log("Getting weather for:", city); // Log the city name for debugging
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("City not found");
+                }
+                return response.json();
+            })
             .then(data => {
                 displayWeather(data);
                 checkWeatherAlert(data.weather[0].main.toLowerCase(), city);
@@ -138,10 +144,12 @@ document.addEventListener("DOMContentLoaded", function() {
     // Handle user input for city search
     document.getElementById("getWeatherBtn").addEventListener("click", function() {
         const cityName = document.getElementById("cityInput").value.trim();
+        console.log("City entered:", cityName); // Log the city name for debugging
+        
         if (cityName === "") {
             alert("Please enter a city name.");
         } else {
-            getWeather(cityName);
+            getWeather(cityName); // Get weather for entered city
         }
     });
 
@@ -156,6 +164,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     recognition.onresult = function(event) {
         const spokenText = event.results[0][0].transcript.toLowerCase();
+        console.log("Spoken text:", spokenText); // Log spoken text for debugging
         if (spokenText.includes("hi garry") || spokenText.includes("hello garry")) {
             speakBotResponse("Hello, I am Garry! How can I help you today?");
         }
@@ -191,24 +200,9 @@ document.addEventListener("DOMContentLoaded", function() {
 // Updated chatbot button functionality
 const chatbotBtn = document.getElementById('chatbotBtn');
 const botImage = document.getElementById('botImage');
-const statusMessage = document.getElementById('statusMessage');
-const voiceWave = document.getElementById('voiceWave');
+const chatWindow = document.getElementById('chatWindow');
 
 chatbotBtn.addEventListener('click', () => {
-  chatbotBtn.classList.toggle('active');
-  
-  if (chatbotBtn.classList.contains('active')) {
-    statusMessage.textContent = "Garry is listening...";
-    voiceWave.style.display = "block";
-    
-    let speech = new SpeechSynthesisUtterance("Hi, I'm Garry. How can I help you?");
-    window.speechSynthesis.speak(speech);
-
-    setTimeout(() => {
-      voiceWave.style.display = "none";
-    }, 1500); // Hide the voice wave after 1.5 seconds
-  } else {
-    statusMessage.textContent = "Garry is idle...";
-    voiceWave.style.display = "none";
-  }
+    chatWindow.style.display = (chatWindow.style.display === 'none' || chatWindow.style.display === '') ? 'block' : 'none';
+    botImage.style.display = (chatWindow.style.display === 'block') ? 'none' : 'block';
 });
