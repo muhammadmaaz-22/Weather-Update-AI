@@ -186,115 +186,41 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Activate listening when the user clicks a button (or can be voice-activated)
     document.getElementById("startListeningBtn").addEventListener("click", startListening);
-});// Get elements
+});
+
+// Get elements
 const chatbotBtn = document.getElementById('chatbotBtn');
 const botImage = document.getElementById('botImage');
 const statusMessage = document.getElementById('statusMessage');
 const voiceWave = document.getElementById('voiceWave');
 
-
-
 // Add event listener to chatbot button
 chatbotBtn.addEventListener('click', () => {
-  // Toggle active class for resizing and animation
-  chatbotBtn.classList.toggle('active');
-  
-  // Toggle vibrating effect when bot starts answering
-  if (chatbotBtn.classList.contains('active')) {
-    // Show the "Garry is listening..." message
-    statusMessage.textContent = "Garry is listening...";
-    statusMessage.style.display = "block";
+    // Toggle active class for resizing and animation
+    chatbotBtn.classList.toggle('active');
     
-    // Add the vibrating effect when active
-    chatbotBtn.classList.add('vibrating');
+    // Toggle vibrating effect when bot starts answering
+    if (chatbotBtn.classList.contains('active')) {
+        // Show the "Garry is listening..." message
+        statusMessage.textContent = "Garry is listening...";
+        statusMessage.style.display = "block";
+        
+        // Add the vibrating effect when active
+        chatbotBtn.classList.add('vibrating');
 
-    // Show the voice wave effect
-    voiceWave.style.display = "block";
-    
-    // Play the voice (text-to-speech) audio message with a female voice
-    let speech = new SpeechSynthesisUtterance("I'm activated. How can I help you?");
-    speech.lang = "en-US";
-    
-    // Select a female voice (if available)
-    let voices = window.speechSynthesis.getVoices();
-    speech.voice = voices.find(voice => voice.name.includes("Female")) || voices[0]; // Default to the first available voice if no female voices found
-    
-    window.speechSynthesis.speak(speech);
-
-    // Start listening for user input after activation
-    startListening();
-  } else {
-    // Hide the status message and voice wave if the chatbot is closed
-    statusMessage.style.display = "none";
-    voiceWave.style.display = "none";
-  }
-});
-
-// Function to start listening for user input
-function startListening() {
-  // Set up Speech Recognition (Web Speech API)
-  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recognition.lang = 'en-US'; // Set the language to English
-  
-  recognition.onstart = function() {
-    // Update status message when listening starts
-    statusMessage.textContent = "Listening...";
-  };
-
-  recognition.onresult = function(event) {
-    const userSpeech = event.results[0][0].transcript.toLowerCase();
-    console.log("User said:", userSpeech); // Log user input for debugging
-
-    // Check if user said "weather" and a city name
-    if (userSpeech.includes("weather")) {
-      let city = userSpeech.split("in")[1]?.trim(); // Extract city from user input
-      if (city) {
-        fetchWeather(city);
-      } else {
-        speak("I didn't catch the city. Please mention the city.");
-      }
+        // Show the voice wave effect
+        voiceWave.style.display = "block";
+        
+        // Play the voice (text-to-speech) audio message with a female voice
+        let speech = new SpeechSynthesisUtterance("I am Garry, your personal assistant. What can I help you with today?");
+        speech.volume = 1;
+        speech.rate = 1;
+        speech.pitch = 1;
+        speech.lang = "en-US";
+        speechSynthesis.speak(speech);
     } else {
-      speak("Sorry, I didn't understand. Please ask me about the weather.");
+        statusMessage.textContent = "";
+        voiceWave.style.display = "none";
+        chatbotBtn.classList.remove('vibrating');
     }
-  };
-
-  recognition.onerror = function(event) {
-    console.error("Speech Recognition Error", event.error);
-    speak("Sorry, there was an issue with listening. Please try again.");
-  };
-
-  recognition.start();
-}
-
-// Function to speak a message
-function speak(message) {
-  let speech = new SpeechSynthesisUtterance(message);
-  speech.lang = "en-US";
-  
-  let voices = window.speechSynthesis.getVoices();
-  speech.voice = voices.find(voice => voice.name.includes("Female")) || voices[0]; // Select a female voice
-
-  window.speechSynthesis.speak(speech);
-}
-
-// Function to fetch weather for a city
-function fetchWeather(city) {
-  const url = `${weatherApiUrl}${city}&appid=${weatherApiKey}&units=metric`;
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      if (data.cod === 200) {
-        const weatherDescription = data.weather[0].description;
-        const temperature = data.main.temp;
-        const weatherMessage = `The weather in ${city} is ${weatherDescription} with a temperature of ${temperature}°C.`;
-        speak(weatherMessage);
-        statusMessage.textContent = weatherMessage;
-      } else {
-        speak("I couldn't find the weather information for that city. Please try again.");
-      }
-    })
-    .catch(error => {
-      console.error("Error fetching weather:", error);
-      speak("Sorry, I couldn't fetch the weather information. Please try again later.");
-    });
-}
+});
