@@ -1,235 +1,214 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const apiKey = "76a2100077e1cce5bbb13f02acf9f280"; // OpenWeatherMap API key
-    const map = L.map('map').setView([24.8607, 67.0011], 5); // Default view (Karachi)
-    const botName = "Garry"; // The AI bot's name
+   /* Basic reset and layout */
+   body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #121212; /* Dark theme background */
+    color: white;
+    overflow: hidden;
+}
 
-    // Set up the base OpenStreetMap layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+#map {
+    height: calc(100vh - 80px); /* Subtract the height of other UI elements */
+    width: 100%;
+}
 
-    // Add OpenWeatherMap weather layers (temperature, clouds, wind, etc.)
-    const baseLayers = {
-        "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
-    };
+/* Weather Information Box */
+#weatherInfo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    width: 250px;
+}
 
-    const overlayLayers = {
-        "Precipitation": L.tileLayer(`https://{s}.tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${apiKey}`),
-        "Clouds": L.tileLayer(`https://{s}.tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=${apiKey}`),
-    };
+#weatherInfo h2 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
 
-    L.control.layers(baseLayers, overlayLayers).addTo(map);
+#weatherInfo p {
+    font-size: 1rem;
+    margin: 5px 0;
+}
+/* Enhanced Weather Alert Box with Smooth Blinking Effect */
+#weatherAlert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(45deg, rgba(255, 69, 0, 1), rgba(255, 99, 71, 1)); /* Orange-red gradient */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    color: white;
+    display: none;
+    width: 300px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    animation: smoothBlink 1.5s infinite; /* Smooth blinking effect */
+}
 
-    // Function to get weather data
-    function getWeather(city) {
-        fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`)
-            .then(response => response.json())
-            .then(data => {
-                displayWeather(data);
-                checkWeatherAlert(data.weather[0].main.toLowerCase(), city);
-                updateMapWithWeather(data.coord.lat, data.coord.lon);
-                speakWeatherInfo(data);
-            })
-            .catch(error => {
-                console.error("Error fetching weather data:", error);
-                alert("Sorry, we couldn't retrieve the weather data for this location. Please try again.");
-            });
+#weatherAlert p {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+/* Smooth Blinking Effect */
+@keyframes smoothBlink {
+    0% {
+        opacity: 1;
+    }
+    30% {
+        opacity: 0.7;
+    }
+    60% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Media Query for Mobile Devices */
+@media (max-width: 768px) {
+    #weatherAlert {
+        width: 250px;
+        font-size: 1rem;
+        padding: 15px;
     }
 
-    // Function to display weather data in the right box
-    function displayWeather(data) {
-        const city = data.name;
-        const weatherDesc = data.weather[0].description;
-        const temp = Math.round(data.main.temp - 273.15); // Convert to Celsius
-        const forecast = `${weatherDesc} with a temperature of ${temp}°C`; // Dynamic forecast
+    #weatherAlert p {
+        font-size: 1.2rem;
+    }
+}
 
-        document.getElementById("cityName").innerText = `City: ${city}`;
-        document.getElementById("weatherDesc").innerText = `Weather: ${weatherDesc}`;
-        document.getElementById("temperature").innerText = `Temperature: ${temp}°C`;
-        document.getElementById("forecast").innerText = `Forecast: ${forecast}`;
+/* Media Query for Very Small Devices */
+@media (max-width: 480px) {
+    #weatherAlert {
+        width: 200px;
+        font-size: 0.9rem;
+        padding: 10px;
     }
 
-    // Function to check weather condition and show popup alert
-    function checkWeatherAlert(weatherCondition, city) {
-        const alertMessageBox = document.getElementById("weatherAlertBox");
-        let alertMessage = '';
-
-        switch (weatherCondition) {
-            case "thunderstorm":
-                alertMessage = `⚡ Thunderstorm Warning in ${city}! Stay indoors.`;
-                break;
-            case "rain":
-                alertMessage = `🌧️ Rain Alert in ${city}. Bring your umbrella!`;
-                break;
-            case "snow":
-                alertMessage = `❄️ Snowfall Warning in ${city}. Drive safely!`;
-                break;
-            case "clear":
-                alertMessage = `☀️ Clear skies in ${city}. Enjoy your day!`;
-                break;
-            default:
-                alertMessage = `Weather update for ${city}: ${weatherCondition}.`;
-        }
-
-        if (alertMessage) {
-            showAlert(alertMessage);  // Show the alert box with the dynamic message
-        }
+    #weatherAlert p {
+        font-size: 1rem;
     }
+}
 
-    // Function to update map with weather markers and info
-    function updateMapWithWeather(lat, lon) {
-        // Clear previous markers
-        map.eachLayer(layer => {
-            if (layer instanceof L.Marker) {
-                map.removeLayer(layer);
-            }
-        });
 
-        // Add a new marker with the weather data
-        L.marker([lat, lon]).addTo(map)
-            .bindPopup(`<b>Weather Location</b><br>Lat: ${lat}, Lon: ${lon}`)
-            .openPopup();
+/* Button styling */
+#getWeatherBtn {
+    background-color: #008CBA; /* Blue button */
+    color: white;
+    font-size: 1rem;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
 
-        // Update the map view to center on the new city and zoom in
-        map.setView([lat, lon], 10); // Set new center and zoom level
-    }
+#getWeatherBtn:hover {
+    background-color: #005f73; /* Darker blue on hover */
+}
 
-    // Function to speak the weather update aloud
-    function speakWeatherInfo(data) {
-        const city = data.name;
-        const weatherDesc = data.weather[0].description;
-        const temp = Math.round(data.main.temp - 273.15); // Convert to Celsius
-        const humidity = data.main.humidity;
-        const windSpeed = data.wind.speed;
-        const forecast = `${weatherDesc}, with a temperature of ${temp} degrees Celsius.`;
+/* Input Field Styling */
+#cityInput {
+    width: 220px;
+    padding: 10px;
+    font-size: 1rem;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
 
-        let speechText = `Hey there! The weather in ${city} is currently ${forecast} `;
-        
-        // Add advice based on conditions
-        if (weatherDesc.includes("rain")) {
-            speechText += `It looks like rain, so you might want to carry an umbrella!`;
-        } else if (weatherDesc.includes("clear")) {
-            speechText += `It’s a sunny day, perfect for some outdoor fun!`;
-        } else if (weatherDesc.includes("cloud")) {
-            speechText += `There are some clouds in the sky, but no need to worry.`;
-        }
-
-        // Mention humidity and wind speed for a more personalized forecast
-        speechText += ` The humidity level is at ${humidity}%. The wind speed is around ${windSpeed} meters per second.`;
-        
-        // Check if the SpeechSynthesis API is supported
-        if ('speechSynthesis' in window) {
-            const speech = new SpeechSynthesisUtterance(speechText);
-            speech.lang = 'en-US';  // You can change language here
-            speech.rate = 1;        // Speed of the voice
-            speech.pitch = 1;       // Pitch of the voice
-            speech.volume = 1;      // Volume level
-            window.speechSynthesis.speak(speech);
-        } else {
-            console.log("SpeechSynthesis API is not supported in your browser.");
-        }
-    }
-
-    // Function to show the alert box with dynamic message
-    function showAlert(message) {
-        const alertBox = document.getElementById('weatherAlert');
-        alertBox.querySelector('p').innerText = message; // Set the dynamic message
-        alertBox.style.display = 'block'; // Show the alert box
-    }
-
-    // Handle user input for city search
-    document.getElementById("getWeatherBtn").addEventListener("click", function() {
-        const cityName = document.getElementById("cityInput").value.trim();
-        if (cityName === "") {
-            alert("Please enter a city name.");
-        } else {
-            getWeather(cityName);
-        }
-    });
-
-    // Get initial weather data for Karachi
-    getWeather("Karachi");
-
-    // Speech Recognition for interacting with Garry
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = function(event) {
-        const spokenText = event.results[0][0].transcript.toLowerCase();
-        if (spokenText.includes("hi garry") || spokenText.includes("hello garry")) {
-            speakBotResponse("Hello, I am Garry! How can I help you today?");
-        }
-    };
-
-    // Start listening for speech
-    function startListening() {
-        recognition.start();
-        document.getElementById("statusMessage").innerText = "Garry is now listening...";  // Update the status message
-    }
-
-    // Speak a response from the bot
-    function speakBotResponse(responseText) {
-        if ('speechSynthesis' in window) {
-            const speech = new SpeechSynthesisUtterance(responseText);
-            speech.lang = 'en-US';
-            speech.rate = 1;
-            speech.pitch = 1;
-            speech.volume = 1;
-            window.speechSynthesis.speak(speech);
-        }
-    }
-
-    // Activate listening when the user clicks on the bot image
-    document.getElementById("botImage").addEventListener("click", function() {
-        startListening();
-    });
-
-    // Activate listening when the user clicks a button (or can be voice-activated)
-    document.getElementById("startListeningBtn").addEventListener("click", startListening);
-});
-// Get elements
-const chatbotBtn = document.getElementById('chatbotBtn');
-const botImage = document.getElementById('botImage');
-const statusMessage = document.getElementById('statusMessage');
-const voiceWave = document.getElementById('voiceWave');
-
-// Add event listener to chatbot button
-chatbotBtn.addEventListener('click', () => {
-  // Toggle active class for resizing and animation
-  chatbotBtn.classList.toggle('active');
-  
-  // Toggle vibrating effect when bot starts answering
-  if (chatbotBtn.classList.contains('active')) {
-    // Show the "Garry is listening..." message
-    statusMessage.textContent = "Garry is listening...";
-    statusMessage.style.display = "block";
-    
-    // Add the vibrating effect when active
-    chatbotBtn.classList.add('vibrating');
-
-    // Show the voice wave effect
-    voiceWave.style.display = "block";
-    
-    // Play the voice (text-to-speech) audio message
-    let speech = new SpeechSynthesisUtterance("Hi I'm Garry. How can I help you?");
-    speech.lang = "en-US";
-    window.speechSynthesis.speak(speech);
-
-    // Simulate response after a short delay (simulate bot processing)
-    setTimeout(() => {
-      // Once bot starts answering, remove vibration and change status
-      chatbotBtn.classList.remove('vibrating');
-      statusMessage.textContent = "Garry is answering...";
-      
-      // Simulate bot response delay
-      setTimeout(() => {
-        statusMessage.textContent = "How can I assist you?";
-        voiceWave.style.display = "none"; // Hide the voice wave once finished
-      }, 1500);
-    }, 2000);
-  } else {
-    // Hide the status message and voice wave if the chatbot is closed
-    statusMessage.style.display = "none";
-    voiceWave.style.display = "none";
+/* Style the overlay for dynamic updates */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4); /* Dark overlay */
+    z-index: 999;
+}
+/* Chatbot Button Styling */
+.chatbot-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out; /* Smooth transition for resizing */
   }
-});
+  
+  .bot-icon {
+    width: 150px;
+    height: 150px;
+    transition: all 0.3s ease; /* Smooth size and animation */
+  }
+  
+  /* Active state for increasing size of bot image */
+  .chatbot-btn.active .bot-icon {
+    transform: scale(1.5); /* Increase size on click */
+  }
+  
+  /* Vibrating effect for the bot icon */
+  @keyframes vibration {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
+  
+  /* Vibrate effect applied to bot icon while answering */
+  .chatbot-btn.active.vibrating .bot-icon {
+    animation: vibration 0.2s linear infinite; /* Vibrate effect */
+  }
+  
+  /* Status message styling */
+  #statusMessage {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    color: white;
+    border-radius: 5px;
+  }
+/* Optional: Add a talking icon (you can use FontAwesome or any other icon library) */
+.chatbot-btn::before {
+    content: '\f027'; /* FontAwesome icon for "comments" or speech bubble */
+    font-family: 'FontAwesome';
+    color: white;
+    font-size: 20px;
+    position: absolute;
+}
+
+/* Add responsiveness for mobile */
+@media (max-width: 600px) {
+    #chatbotBtn {
+        width: 70px;
+        height: 70px;
+        padding: 20px;
+        font-size: 24px;  /* Increase icon size */
+    }
+}
