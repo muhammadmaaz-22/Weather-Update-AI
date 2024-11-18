@@ -36,7 +36,6 @@
     font-size: 1rem;
     margin: 5px 0;
 }
-
 /* Enhanced Weather Alert Box with Smooth Blinking Effect */
 #weatherAlert {
     position: fixed;
@@ -77,6 +76,33 @@
     }
 }
 
+/* Media Query for Mobile Devices */
+@media (max-width: 768px) {
+    #weatherAlert {
+        width: 250px;
+        font-size: 1rem;
+        padding: 15px;
+    }
+
+    #weatherAlert p {
+        font-size: 1.2rem;
+    }
+}
+
+/* Media Query for Very Small Devices */
+@media (max-width: 480px) {
+    #weatherAlert {
+        width: 200px;
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    #weatherAlert p {
+        font-size: 1rem;
+    }
+}
+
+
 /* Button styling */
 #getWeatherBtn {
     background-color: #008CBA; /* Blue button */
@@ -114,39 +140,60 @@
     background: rgba(0, 0, 0, 0.4); /* Dark overlay */
     z-index: 999;
 }
-
-/* Chatbot Button Styles */
+/* Chatbot Button Styling */
 .chatbot-btn {
-    background: linear-gradient(45deg, #ff4f00, #ff5733); /* Red to Orange gradient */
+    background: none;
     border: none;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease;
-    z-index: 9999;
-}
-
-/* Hover Effect */
-.chatbot-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-}
-
-/* Chatbot Icon Inside Button */
-.bot-icon {
-    width: 135px;
-    height: 235px;
-    object-fit: contain;
-}
-
+    padding: 0;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out; /* Smooth transition for resizing */
+  }
+  
+  .bot-icon {
+    width: 50px;
+    height: 50px;
+    transition: all 0.3s ease; /* Smooth size and animation */
+  }
+  
+  /* Active state for increasing size of bot image */
+  .chatbot-btn.active .bot-icon {
+    transform: scale(1.5); /* Increase size on click */
+  }
+  
+  /* Vibrating effect for the bot icon */
+  @keyframes vibration {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
+  
+  /* Vibrate effect applied to bot icon while answering */
+  .chatbot-btn.active.vibrating .bot-icon {
+    animation: vibration 0.2s linear infinite; /* Vibrate effect */
+  }
+  
+  /* Status message styling */
+  #statusMessage {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    color: white;
+    border-radius: 5px;
+  }
 /* Optional: Add a talking icon (you can use FontAwesome or any other icon library) */
 .chatbot-btn::before {
     content: '\f027'; /* FontAwesome icon for "comments" or speech bubble */
