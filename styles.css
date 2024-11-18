@@ -1,0 +1,167 @@
+   /* Basic reset and layout */
+   body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #121212; /* Dark theme background */
+    color: white;
+    overflow: hidden;
+}
+
+#map {
+    height: calc(100vh - 80px); /* Subtract the height of other UI elements */
+    width: 100%;
+}
+
+/* Weather Information Box */
+#weatherInfo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    width: 250px;
+}
+
+#weatherInfo h2 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+#weatherInfo p {
+    font-size: 1rem;
+    margin: 5px 0;
+}
+
+/* Enhanced Weather Alert Box with Smooth Blinking Effect */
+#weatherAlert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(45deg, rgba(255, 69, 0, 1), rgba(255, 99, 71, 1)); /* Orange-red gradient */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    color: white;
+    display: none;
+    width: 300px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    animation: smoothBlink 1.5s infinite; /* Smooth blinking effect */
+}
+
+#weatherAlert p {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+/* Smooth Blinking Effect */
+@keyframes smoothBlink {
+    0% {
+        opacity: 1;
+    }
+    30% {
+        opacity: 0.7;
+    }
+    60% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Button styling */
+#getWeatherBtn {
+    background-color: #008CBA; /* Blue button */
+    color: white;
+    font-size: 1rem;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+#getWeatherBtn:hover {
+    background-color: #005f73; /* Darker blue on hover */
+}
+
+/* Input Field Styling */
+#cityInput {
+    width: 220px;
+    padding: 10px;
+    font-size: 1rem;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Style the overlay for dynamic updates */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4); /* Dark overlay */
+    z-index: 999;
+}
+
+/* Chatbot Button Styles */
+.chatbot-btn {
+    background: linear-gradient(45deg, #ff4f00, #ff5733); /* Red to Orange gradient */
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    z-index: 9999;
+}
+
+/* Hover Effect */
+.chatbot-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Chatbot Icon Inside Button */
+.bot-icon {
+    width: 135px;
+    height: 235px;
+    object-fit: contain;
+}
+
+/* Optional: Add a talking icon (you can use FontAwesome or any other icon library) */
+.chatbot-btn::before {
+    content: '\f027'; /* FontAwesome icon for "comments" or speech bubble */
+    font-family: 'FontAwesome';
+    color: white;
+    font-size: 20px;
+    position: absolute;
+}
+
+/* Add responsiveness for mobile */
+@media (max-width: 600px) {
+    #chatbotBtn {
+        width: 70px;
+        height: 70px;
+        padding: 20px;
+        font-size: 24px;  /* Increase icon size */
+    }
+}
