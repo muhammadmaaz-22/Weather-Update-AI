@@ -187,3 +187,49 @@ document.addEventListener("DOMContentLoaded", function() {
     // Activate listening when the user clicks a button (or can be voice-activated)
     document.getElementById("startListeningBtn").addEventListener("click", startListening);
 });
+// Get elements
+const chatbotBtn = document.getElementById('chatbotBtn');
+const botImage = document.getElementById('botImage');
+const statusMessage = document.getElementById('statusMessage');
+const voiceWave = document.getElementById('voiceWave');
+
+// Add event listener to chatbot button
+chatbotBtn.addEventListener('click', () => {
+  // Toggle active class for resizing and animation
+  chatbotBtn.classList.toggle('active');
+  
+  // Toggle vibrating effect when bot starts answering
+  if (chatbotBtn.classList.contains('active')) {
+    // Show the "Garry is listening..." message
+    statusMessage.textContent = "Garry is listening...";
+    statusMessage.style.display = "block";
+    
+    // Add the vibrating effect when active
+    chatbotBtn.classList.add('vibrating');
+
+    // Show the voice wave effect
+    voiceWave.style.display = "block";
+    
+    // Play the voice (text-to-speech) audio message
+    let speech = new SpeechSynthesisUtterance("Hi I'm Garry. How can I help you?");
+    speech.lang = "en-US";
+    window.speechSynthesis.speak(speech);
+
+    // Simulate response after a short delay (simulate bot processing)
+    setTimeout(() => {
+      // Once bot starts answering, remove vibration and change status
+      chatbotBtn.classList.remove('vibrating');
+      statusMessage.textContent = "Garry is answering...";
+      
+      // Simulate bot response delay
+      setTimeout(() => {
+        statusMessage.textContent = "How can I assist you?";
+        voiceWave.style.display = "none"; // Hide the voice wave once finished
+      }, 1500);
+    }, 2000);
+  } else {
+    // Hide the status message and voice wave if the chatbot is closed
+    statusMessage.style.display = "none";
+    voiceWave.style.display = "none";
+  }
+});
