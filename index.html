@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-weather/leaflet-weather.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Weather Tracker</h1>
+  </header>
+
+  <!-- Weather Alert Box -->
+  <div class="weather-alert-box" id="weatherAlert" aria-live="assertive">
+    <div class="icon">⚠️</div>
+    <p>Severe weather warning in your area!</p>
+    <button onclick="closeAlert()">Close</button>
+  </div>
+
+  <!-- Input Field for City -->
+  <input type="text" id="cityInput" placeholder="Enter city">
+  <button id="getWeatherBtn">Get Weather</button>
+
+  <!-- Weather Information Box -->
+  <div id="weatherInfoBox">
+    <h3 id="cityName">City: Karachi</h3>
+    <p id="weatherDesc">Weather: Cloudy</p>
+    <p id="temperature">Temperature: 30°C</p>
+    <p id="forecast">Forecast: Thunderstorms expected in the evening</p>
+  </div>
+
+ <!-- Updated Chatbot Button -->
+<!-- Updated Chatbot Button -->
+<button id="chatbotBtn" class="chatbot-btn">
+    <img src="images/chatbot-kiu.gif" alt="Chatbot" id="botImage" class="bot-icon">
+  </button>
+  <div id="statusMessage"></div>
+  <div id="voiceWave" class="voice-wave"></div>
+  <!-- Map Section -->
+  <div id="map"></div>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-weather/leaflet-weather.js"></script>
+
+</body>
+</html>
